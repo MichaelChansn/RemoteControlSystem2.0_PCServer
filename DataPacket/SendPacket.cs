@@ -1,4 +1,4 @@
-﻿using ControlServer1._0.ScreenBitmap;
+﻿using RemoteControlSystem2._0.ScreenBitmap;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace ControlServer1._0.DataPacket
+namespace RemoteControlSystem2._0.DataPacket
 {
     class SendPacket
     {

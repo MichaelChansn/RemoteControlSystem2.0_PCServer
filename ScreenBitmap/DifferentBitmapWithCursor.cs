@@ -1,11 +1,11 @@
-﻿using ControlServer1._0.DataPacket;
+﻿using RemoteControlSystem2._0.DataPacket;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 
-namespace ControlServer1._0.ScreenBitmap
+namespace RemoteControlSystem2._0.ScreenBitmap
 {
     class DifferentBitmapWithCursor
     {

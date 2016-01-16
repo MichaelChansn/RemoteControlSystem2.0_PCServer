@@ -1,5 +1,5 @@
-﻿using ControlServer1._0.CopyScreenAndBitmapTools;
-using ControlServer1._0.ScreenBitmap;
+﻿using RemoteControlSystem2._0.CopyScreenAndBitmapTools;
+using RemoteControlSystem2._0.ScreenBitmap;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace ControlServer1._0.BitmapComparer
+namespace RemoteControlSystem2._0.BitmapComparer
 {
     class GetDifBlocks
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ControlServer1._0.ScreenBitmap
+namespace RemoteControlSystem2._0.ScreenBitmap
 {
     /**store the bitmap block size*/
     class ShortRec

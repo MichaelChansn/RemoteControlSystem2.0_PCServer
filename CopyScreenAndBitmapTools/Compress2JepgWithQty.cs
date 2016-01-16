@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace ControlServer1._0.CopyScreenAndBitmapTools
+namespace RemoteControlSystem2._0.CopyScreenAndBitmapTools
 {
     class Compress2JepgWithQty
     {

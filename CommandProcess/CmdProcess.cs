@@ -1,5 +1,5 @@
 ﻿
-using ControlServer1._0.DataPacket;
+using RemoteControlSystem2._0.DataPacket;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace ControlServer1._0.CommandProcess
+namespace RemoteControlSystem2._0.CommandProcess
 {
     class CmdProcess
     {

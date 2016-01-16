@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ControlServer1._0.OSInfos
+namespace RemoteControlSystem2._0.OSInfos
 {
     class OperatingSystemInfos
     {

@@ -1,11 +1,11 @@
-﻿using ControlServer1._0.ErrorMessage;
+﻿using RemoteControlSystem2._0.ErrorMessage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace ControlServer1._0.StreamLine
+namespace RemoteControlSystem2._0.StreamLine
 {
     /**a blocking queue */
             class BlockingQueue<T>

@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
-namespace ControlServer1._0.BitmapTools
+namespace RemoteControlSystem2._0.BitmapTools
 {
     class JpegZip
     {

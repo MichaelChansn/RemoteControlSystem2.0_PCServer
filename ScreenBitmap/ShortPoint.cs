@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace ControlServer1._0.ScreenBitmap
+namespace RemoteControlSystem2._0.ScreenBitmap
 {
     /**store the cursor points*/
     class ShortPoint

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace ControlServer1._0
+namespace RemoteControlSystem2._0
 {
     static class Program
     {

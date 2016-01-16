@@ -1,4 +1,4 @@
-﻿using ControlServer1._0.ErrorMessage;
+﻿using RemoteControlSystem2._0.ErrorMessage;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -14,11 +14,11 @@ using Device = SharpDX.Direct3D11.Device;
 using MapFlags = SharpDX.Direct3D11.MapFlags;
 using System.Threading;
 using System.Diagnostics;
-using ControlServer1._0.StreamLine;
-using ControlServer1._0.ScreenBitmap;
+using RemoteControlSystem2._0.StreamLine;
+using RemoteControlSystem2._0.ScreenBitmap;
 using DesktopDuplication;
 
-namespace ControlServer1._0.CopyScreenAndBitmapTools
+namespace RemoteControlSystem2._0.CopyScreenAndBitmapTools
 {
     class CopyScreen
     {

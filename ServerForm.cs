@@ -1,7 +1,7 @@
-﻿using ControlServer1._0.CopyScreenAndBitmapTools;
-using ControlServer1._0.ErrorMessage;
-using ControlServer1._0.ScreenBitmap;
-using ControlServer1._0.StreamLine;
+﻿using RemoteControlSystem2._0.CopyScreenAndBitmapTools;
+using RemoteControlSystem2._0.ErrorMessage;
+using RemoteControlSystem2._0.ScreenBitmap;
+using RemoteControlSystem2._0.StreamLine;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,16 +16,16 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using ControlServer1._0.BitMapComparer;
-using ControlServer1._0.DataPacket;
-using ControlServer1._0.BitmapComparer;
-using ControlServer1._0.BitmapTools;
+using RemoteControlSystem2._0.BitMapComparer;
+using RemoteControlSystem2._0.DataPacket;
+using RemoteControlSystem2._0.BitmapComparer;
+using RemoteControlSystem2._0.BitmapTools;
 using ICSharpCode.SharpZipLib.Zip;
 using DesktopDuplication;
-using ControlServer1._0.OSInfos;
-using ControlServer1._0.CommandProcess;
+using RemoteControlSystem2._0.OSInfos;
+using RemoteControlSystem2._0.CommandProcess;
 
-namespace ControlServer1._0
+namespace RemoteControlSystem2._0
 {
     public partial class ServerForm : Form
     {

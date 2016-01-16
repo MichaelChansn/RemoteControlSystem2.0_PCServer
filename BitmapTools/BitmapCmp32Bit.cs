@@ -1,4 +1,4 @@
-﻿using ControlServer1._0.ScreenBitmap;
+﻿using RemoteControlSystem2._0.ScreenBitmap;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ControlServer1._0.BitmapTools
+namespace RemoteControlSystem2._0.BitmapTools
 {
     /**this class is used for compare two 32bppArgb format Bimaps, 
      * 24bpprgb is  not the same with 32bppArgb,

@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace ControlServer1._0.ErrorMessage
+namespace RemoteControlSystem2._0.ErrorMessage
 {
     class ErrorInfo
     {
