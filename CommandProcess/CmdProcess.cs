@@ -218,7 +218,9 @@ namespace RemoteControlSystem2._0.CommandProcess
                         mouse_event(MOUSEEVENTF_MOVE, xdis, ydis, 0, 0);
                         break;
                     case ENUMS.MESSAGETYPE.MOUSE_RIGHT_CLICK:
-                        mouse_event(MOUSEEVENTF_RIGHTDOWN | MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
+                        mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
+                        Thread.Sleep(100);
+                        mouse_event( MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
                         break;
                     case ENUMS.MESSAGETYPE.MOUSE_RIGHT_DOUBLE_CLICK:
                         //双击右键
