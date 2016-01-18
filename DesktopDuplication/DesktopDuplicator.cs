@@ -17,7 +17,7 @@ namespace DesktopDuplication
     /// <summary>
     /// Provides access to frame-by-frame updates of a particular desktop (i.e. one monitor), with image and cursor information.
     /// </summary>
-    public class DesktopDuplicator
+    public class DesktopDuplicator : IDisposable
     {
         private Device mDevice;
         private Texture2DDescription mTextureDesc;
@@ -313,6 +313,14 @@ namespace DesktopDuplication
                     throw new DesktopDuplicationException("Failed to release frame.");
                 }
             }
+        }
+
+        public void Dispose()
+        {
+           
+            mDevice.Dispose();
+            desktopImageTexture.Dispose();
+            throw new NotImplementedException();
         }
     }
 }

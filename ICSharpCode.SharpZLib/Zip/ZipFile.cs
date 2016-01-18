@@ -2986,8 +2986,9 @@ namespace ICSharpCode.SharpZipLib.Zip
 		#region Disposing
 
 		#region IDisposable Members
-		void IDisposable.Dispose()
+		public void Dispose()
 		{
+            Dispose(true);
 			Close();
 		}
 		#endregion

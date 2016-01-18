@@ -206,7 +206,10 @@ namespace RemoteControlSystem2._0
                     Socket client = ((Socket)serverSocket).Accept();
                     if (clientSocket != null)
                     {
+                        sendMessage2Client("you are kicked by other people!");
+                        Thread.Sleep(100);//wait for last message
                         stopClient();
+                        Thread.Sleep(100);//wait for clean socket
 
                     }
                     clientSocket = client;
@@ -288,7 +291,7 @@ namespace RemoteControlSystem2._0
             if (!client.Connected) return;
             NetworkStream stream = new NetworkStream(client);
             BinaryWriter writer = new BinaryWriter(stream);
-            sendMessage2Client("hello,this is a test");
+            sendMessage2Client("hello,this is server");
             while (isClientRun)
             {
                 //TODO
