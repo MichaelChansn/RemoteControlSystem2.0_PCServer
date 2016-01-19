@@ -44,7 +44,7 @@ namespace RemoteControlSystem2._0
 
         private static int UDP_PORT = 9999;
         private static Thread DUPScanThread = null;
-        private static UdpClient udpClient=null;
+        private static UdpClient udpClient = null;
 
         private static bool isServerRun = false;
         private static bool isClientRun = false;
@@ -88,7 +88,7 @@ namespace RemoteControlSystem2._0
                 DUPScanThread.Abort();
                 DUPScanThread.Join();
             }
-           
+
         }
         private void startUDPReceiverThread()
         {
@@ -99,84 +99,106 @@ namespace RemoteControlSystem2._0
         }
         void udpReceive()
         {
-            udpClient = new UdpClient(UDP_PORT);
-            IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
-            while (isServerRun)
+            try
             {
-                try
-                {
-                    Byte[] receiveBytes = udpClient.Receive(ref RemoteIpEndPoint);//这个方法是阻塞的
-                    string returnData = Encoding.UTF8.GetString(receiveBytes);
-                    Console.WriteLine(returnData);
-                    string[] rec = returnData.Split(ENUMS.NETSEPARATOR.ToCharArray(),StringSplitOptions.RemoveEmptyEntries);
-                    if (rec[0] == ENUMS.UDPSCANMESSAGE && rec.Length==2)
-                    {
-                        this.setMessageHost(rec[1]+" Scanning...");
-                        Console.WriteLine(rec[1] + ":" + RemoteIpEndPoint.ToString());
-                        byte[] buf = Encoding.UTF8.GetBytes(ENUMS.UDPSCANRETURN+ENUMS.NETSEPARATOR+System.Environment.UserName + ENUMS.NETSEPARATOR + TCP_PORT);
-                        udpClient.Send(buf, buf.Length, RemoteIpEndPoint);
-
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    if (udpClient != null)
-                    {
-                        udpClient.Close();
-                        udpClient = null;
-                    }
-                    return;
-                }
-
-
+                udpClient = new UdpClient(UDP_PORT);
             }
-            if (udpClient != null)
+            catch (SocketException se)
             {
-                udpClient.Close();
-                udpClient = null;
+                MessageBox.Show("UDP Scan Thread Is Crashed\r\n"+se.Message, "UDP ERROR");
+                return;
             }
+                IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                while (isServerRun)
+                {
+                    try
+                    {
+                        Byte[] receiveBytes = udpClient.Receive(ref RemoteIpEndPoint);//这个方法是阻塞的
+                        string returnData = Encoding.UTF8.GetString(receiveBytes);
+                        Console.WriteLine(returnData);
+                        string[] rec = returnData.Split(ENUMS.NETSEPARATOR.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                        if (rec[0] == ENUMS.UDPSCANMESSAGE && rec.Length == 2)
+                        {
+                            this.setMessageHost(rec[1] + " Scanning...");
+                            Console.WriteLine(rec[1] + ":" + RemoteIpEndPoint.ToString());
+                            byte[] buf = Encoding.UTF8.GetBytes(ENUMS.UDPSCANRETURN + ENUMS.NETSEPARATOR + System.Environment.UserName + ENUMS.NETSEPARATOR + TCP_PORT);
+                            udpClient.Send(buf, buf.Length, RemoteIpEndPoint);
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        if (udpClient != null)
+                        {
+                            udpClient.Close();
+                            udpClient = null;
+                        }
+                        return;
+                    }
+
+
+                }
+                if (udpClient != null)
+                {
+                    udpClient.Close();
+                    udpClient = null;
+                }
+
         }
         private void buttonServer_Click(object sender, EventArgs e)
         {
             if (!isServerRun)
             {
-                isServerRun = true;
-                startUDPReceiverThread();
-                serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                serverSocket.Bind(new IPEndPoint(IPAddress.Any, TCP_PORT));
-                serverSocket.Blocking = true;
-                serverSocket.Listen(5);
 
-                serverSocketThread = new Thread(new ParameterizedThreadStart(serverSocketFun));
-                serverSocketThread.Priority = ThreadPriority.Lowest;
-                serverSocketThread.IsBackground = true;
-                serverSocketThread.Start(serverSocket);
+                try
+                {
+                    isServerRun = true;
+                    startUDPReceiverThread();
+                    serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    serverSocket.Bind(new IPEndPoint(IPAddress.Any, TCP_PORT));
+                    serverSocket.Blocking = true;
+                    serverSocket.Listen(5);
 
-                textBoxHost.Text = "SERVER IS RUNNING...";
-                textBoxAddr.Text = "WAIT FOR CLIENT...";
-                buttonServer.Text = "STOP SERVER";
-                this.buttonServer.BackColor = System.Drawing.Color.Red;
-                this.buttonServer.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(158)))), ((int)(((byte)(146)))));
-                this.buttonServer.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(158)))), ((int)(((byte)(146)))));
+                    serverSocketThread = new Thread(new ParameterizedThreadStart(serverSocketFun));
+                    serverSocketThread.Priority = ThreadPriority.Lowest;
+                    serverSocketThread.IsBackground = true;
+                    serverSocketThread.Start(serverSocket);
+
+                    textBoxHost.Text = "SERVER IS RUNNING...";
+                    textBoxAddr.Text = "WAIT FOR CLIENT...";
+                    buttonServer.Text = "STOP SERVER";
+
+                    this.buttonServer.BackColor = System.Drawing.Color.Red;
+                    this.buttonServer.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(158)))), ((int)(((byte)(146)))));
+                    this.buttonServer.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(158)))), ((int)(((byte)(146)))));
+                }
+                catch (SocketException se)
+                {
+                    isServerRun = false;
+                    MessageBox.Show("TCP Server Is Crashed\r\n"+se.Message, "ERROR!", MessageBoxButtons.OK);
+                    ErrorInfo.getErrorWriter().writeErrorMassageToFile(se.Message);
+                }
             }
             else
             {
-                isServerRun = false;
-                stopUDP();
-                buttonServer.Text = "START SERVER";
-                textBoxHost.Text = "SERVER IS CLOSE...";
-                textBoxAddr.Text = "";
-                this.buttonServer.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(158)))), ((int)(((byte)(146)))));
-                this.buttonServer.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
-                this.buttonServer.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Red;
                 try
                 {
+                    isServerRun = false;
+                    stopUDP();
                     stopAllThreads();
+                    buttonServer.Text = "START SERVER";
+                    textBoxHost.Text = "SERVER IS CLOSE...";
+                    textBoxAddr.Text = "";
+
+                    this.buttonServer.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(158)))), ((int)(((byte)(146)))));
+                    this.buttonServer.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
+                    this.buttonServer.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Red;
 
                 }
                 catch (SocketException se)
                 {
+                    isServerRun = true;
                     Console.WriteLine(se.Message);
                     ErrorInfo.getErrorWriter().writeErrorMassageToFile(se.Message);
                 }
@@ -206,7 +228,7 @@ namespace RemoteControlSystem2._0
                     Socket client = ((Socket)serverSocket).Accept();
                     if (clientSocket != null)
                     {
-                        sendMessage2Client("you are kicked by other people!");
+                        sendMessage2Client("you are kicked off by other people!");
                         Thread.Sleep(100);//wait for last message
                         stopClient();
                         Thread.Sleep(100);//wait for clean socket
@@ -270,7 +292,7 @@ namespace RemoteControlSystem2._0
                 try
                 {
                     ENUMS.MESSAGETYPE messageType = (ENUMS.MESSAGETYPE)reader.ReadByte();
-                    CmdProcess.processCmd(this,reader, messageType);
+                    CmdProcess.processCmd(this, reader, messageType);
                 }
                 catch (Exception ex)
                 {
@@ -279,7 +301,7 @@ namespace RemoteControlSystem2._0
                     Console.WriteLine(ex.Message);
                     ErrorInfo.getErrorWriter().writeErrorMassageToFile(ex.Message + "\r\n" + ex.StackTrace + "\r\n");
                 }
-                
+
             }
 
         }
@@ -298,46 +320,46 @@ namespace RemoteControlSystem2._0
                 SendPacket sendpacket = sendPacketQueue.Dequeue();
                 if (sendpacket != null)
                 {
-                   // Console.WriteLine("sendPacketThread***********");
+                    // Console.WriteLine("sendPacketThread***********");
                     try
                     {
                         SendPacket.PacketType packetType = sendpacket.getPacketType();
                         switch (packetType)
                         {
                             case SendPacket.PacketType.BITMAP:
-                                    writer.Write((byte)packetType);
-                                    writer.Write((Int32)sendpacket.getbitmapBytesLength());
-                                    writer.Write((byte)sendpacket.getBitmapType());
-                                    writer.Write((Int16)sendpacket.getCursorPoint().getXPoint());
-                                    writer.Write((Int16)sendpacket.getCursorPoint().getYPoint());
-                                    List<ShortRec> difPointsList = sendpacket.getDifPointsList();
-                                    Int16 difNum = 0;
-                                    if (difPointsList != null)
-                                    {
-                                        difNum = (Int16)difPointsList.Count;
-                                    }
-                                    writer.Write((Int16)difNum);
+                                writer.Write((byte)packetType);
+                                writer.Write((Int32)sendpacket.getbitmapBytesLength());
+                                writer.Write((byte)sendpacket.getBitmapType());
+                                writer.Write((Int16)sendpacket.getCursorPoint().getXPoint());
+                                writer.Write((Int16)sendpacket.getCursorPoint().getYPoint());
+                                List<ShortRec> difPointsList = sendpacket.getDifPointsList();
+                                Int16 difNum = 0;
+                                if (difPointsList != null)
+                                {
+                                    difNum = (Int16)difPointsList.Count;
+                                }
+                                writer.Write((Int16)difNum);
 
-                                    if (difNum > 0)
+                                if (difNum > 0)
+                                {
+                                    List<ShortRec> difPoints = sendpacket.getDifPointsList();
+                                    foreach (ShortRec dif in difPoints)
                                     {
-                                        List<ShortRec> difPoints = sendpacket.getDifPointsList();
-                                        foreach (ShortRec dif in difPoints)
-                                        {
-                                            writer.Write(dif.xPoint);
-                                            writer.Write(dif.yPoint);
-                                            writer.Write(dif.width);
-                                            writer.Write(dif.height);
-                                        }
+                                        writer.Write(dif.xPoint);
+                                        writer.Write(dif.yPoint);
+                                        writer.Write(dif.width);
+                                        writer.Write(dif.height);
                                     }
-                                    writer.Write(sendpacket.getBitByts(), 0, sendpacket.getbitmapBytesLength());
-                                    writer.Flush();
+                                }
+                                writer.Write(sendpacket.getBitByts(), 0, sendpacket.getbitmapBytesLength());
+                                writer.Flush();
                                 break;
                             case SendPacket.PacketType.TEXT:
-                                    writer.Write((byte)packetType);
-                                    byte[] sendBytes=Encoding.UTF8.GetBytes(sendpacket.getStringValue());
-                                    writer.Write(sendBytes.Length);
-                                    writer.Write(sendBytes);
-                                    writer.Flush();
+                                writer.Write((byte)packetType);
+                                byte[] sendBytes = Encoding.UTF8.GetBytes(sendpacket.getStringValue());
+                                writer.Write(sendBytes.Length);
+                                writer.Write(sendBytes);
+                                writer.Flush();
                                 break;
                             default:
                                 break;
@@ -360,12 +382,12 @@ namespace RemoteControlSystem2._0
 
 
         private bool picFlag = false;
-        public  void startSendPicFlags()
+        public void startSendPicFlags()
         {
             picFlag = true;
             manulResetEvent.Set();
         }
-        public  void stopSendPicFlags()
+        public void stopSendPicFlags()
         {
             picFlag = false;
             manulResetEvent.Reset();
@@ -380,7 +402,7 @@ namespace RemoteControlSystem2._0
 
         }
         /**开始发送截图，流水线开始工作*/
-        public  void startSendPicThreads()
+        public void startSendPicThreads()
         {
             isSendPic = true;
             /*3*截屏线程*/
@@ -414,23 +436,23 @@ namespace RemoteControlSystem2._0
                 copyScreenThread.Interrupt();
                 copyScreenThread.Abort();
                 if (copyScreenThread != null)
-                copyScreenThread.Join();
+                    copyScreenThread.Join();
                 copyScreenThread = null;
             }
             if (bitmapCmpThread != null)
             {
                 bitmapCmpThread.Interrupt();
                 bitmapCmpThread.Abort();
-                if(bitmapCmpThread!=null)
-                bitmapCmpThread.Join();
+                if (bitmapCmpThread != null)
+                    bitmapCmpThread.Join();
                 bitmapCmpThread = null;
             }
             if (compressThread != null)
             {
                 compressThread.Interrupt();
                 compressThread.Abort();
-                if(compressThread!=null)
-                compressThread.Join();
+                if (compressThread != null)
+                    compressThread.Join();
                 compressThread = null;
             }
 
@@ -536,7 +558,7 @@ namespace RemoteControlSystem2._0
          * 广域网一般40*40 或 20*20
          * 是否需要协商块的大小？？？？进一步实验决定。默认的事30*30
          **/
-        private static Size bitCmpSize =new Size(32,32);// new Size(30, 30);
+        private static Size bitCmpSize = new Size(32, 32);// new Size(30, 30);
         private static bool isFirstFrame = true;//用于第一比较帧的保存
         private static int keyFrameAdjusttimes = 0;
         private static double VPT07 = 0.7;
@@ -685,7 +707,7 @@ namespace RemoteControlSystem2._0
                 }
                 while (picFlag)
                 {
-                   
+
                     DifferentBitmapWithCursor differentBitmapWithCursor = screenCopyDifQueue.Dequeue();
                     if (differentBitmapWithCursor != null)
                     {
@@ -736,24 +758,24 @@ namespace RemoteControlSystem2._0
             {
                 sendPacketThread.Interrupt();
                 sendPacketThread.Abort();
-                if(sendPacketThread!=null)
-                sendPacketThread.Join();
+                if (sendPacketThread != null)
+                    sendPacketThread.Join();
                 sendPacketThread = null;
             }
             if (recPacketThread != null)
             {
                 recPacketThread.Interrupt();
                 recPacketThread.Abort();
-                if(recPacketThread!=null)
-                recPacketThread.Join();
+                if (recPacketThread != null)
+                    recPacketThread.Join();
                 recPacketThread = null;
             }
             if (clientSocketHandlerThread != null)
             {
                 clientSocketHandlerThread.Interrupt();
                 clientSocketHandlerThread.Abort();
-                if(clientSocketHandlerThread!=null)
-                clientSocketHandlerThread.Join();
+                if (clientSocketHandlerThread != null)
+                    clientSocketHandlerThread.Join();
                 clientSocketHandlerThread = null;
             }
             /**重新创建队列*/
@@ -782,8 +804,8 @@ namespace RemoteControlSystem2._0
             {
                 serverSocketThread.Interrupt();
                 serverSocketThread.Abort();
-                if(sendPacketThread!=null)
-                serverSocketThread.Join();
+                if (sendPacketThread != null)
+                    serverSocketThread.Join();
                 serverSocketThread = null;
             }
         }
