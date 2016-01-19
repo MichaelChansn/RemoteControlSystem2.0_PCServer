@@ -159,7 +159,9 @@ namespace RemoteControlSystem2._0.DataPacket
             KEY_DOWN = (byte)0x20,
             KEY_UP = (byte)0x21,
 
-
+            /**keyboard press info*/
+            BOARDKEY_DOWN = (byte)0x22,
+            BOARDKEY_UP = (byte)0x23,
 
             /**mouse control*/
             MOUSE_LEFT_DOWN = (byte)0x30,

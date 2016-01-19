@@ -379,7 +379,7 @@ namespace RemoteControlSystem2._0
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "ServerForm";
-            this.Text = "Form1";
+            this.Text = "Remote Server";
             this.panelTop.ResumeLayout(false);
             this.panelTop.PerformLayout();
             this.panelBackground.ResumeLayout(false);
