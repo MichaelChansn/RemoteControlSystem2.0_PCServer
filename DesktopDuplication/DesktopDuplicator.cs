@@ -140,7 +140,7 @@ namespace DesktopDuplication
                 ReleaseFrame();
             }
             catch { 
-            //    throw new DesktopDuplicationException("Couldn't release frame.");  
+                throw new DesktopDuplicationException("Couldn't release frame.");  
             }
             return frame;
         }
@@ -164,7 +164,7 @@ namespace DesktopDuplication
                 if (ex.ResultCode.Failure)
                 {
                     //return true;
-                    ReleaseFrame();
+                    desktopResource.Dispose();
                     throw new DesktopDuplicationException("Failed to acquire next frame.");
                 }
             }

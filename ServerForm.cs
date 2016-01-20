@@ -247,6 +247,7 @@ namespace RemoteControlSystem2._0
 
                     Console.WriteLine(ex.Message);
                     ErrorInfo.getErrorWriter().writeErrorMassageToFile(ex.Message + "\r\n" + ex.StackTrace);
+                    break;
 
                 }
             }
@@ -430,29 +431,19 @@ namespace RemoteControlSystem2._0
 
             isSendPic = false;
             isFirstFrame = true;
-            /* manualEvent.Reset();*/
-            if (copyScreenThread != null)
+            if (copyScreenThread != null && copyScreenThread.IsAlive)
             {
                 copyScreenThread.Interrupt();
-                copyScreenThread.Abort();
-                if (copyScreenThread != null)
-                    copyScreenThread.Join();
                 copyScreenThread = null;
             }
-            if (bitmapCmpThread != null)
+            if (bitmapCmpThread != null && bitmapCmpThread.IsAlive)
             {
                 bitmapCmpThread.Interrupt();
-                bitmapCmpThread.Abort();
-                if (bitmapCmpThread != null)
-                    bitmapCmpThread.Join();
                 bitmapCmpThread = null;
             }
-            if (compressThread != null)
+            if (compressThread != null && compressThread.IsAlive)
             {
                 compressThread.Interrupt();
-                compressThread.Abort();
-                if (compressThread != null)
-                    compressThread.Join();
                 compressThread = null;
             }
 
@@ -562,6 +553,8 @@ namespace RemoteControlSystem2._0
         private static bool isFirstFrame = true;//用于第一比较帧的保存
         private static int keyFrameAdjusttimes = 0;
         private static double VPT07 = 0.7;
+        private static int globalBtmWidth = 1;
+        private static int globalBtmHeight = 1;
         private void bitmapCmpToBlockingQueue()
         {
             while (isSendPic)
@@ -597,13 +590,25 @@ namespace RemoteControlSystem2._0
                             //    sendKeyFrame();
                             //}
                             Bitmap btm1 = bitmapWithCursor.getScreenBitmap();
+                           
                             if (isFirstFrame)
                             {
+                                globalBtmWidth = btm1.Width;
+                                globalBtmHeight = btm1.Height;
                                 upDateKeyFrame(btm1, bitmapWithCursor.getCursorPoint());
                                 isFirstFrame = false;
                             }
                             else
                             {
+                                int lastBtmWidth = btm1.Width;
+                                int lastBtmHeight = btm1.Height;
+                                if (lastBtmWidth != globalBtmWidth || lastBtmHeight != globalBtmHeight)
+                                {
+                                    globalBtmWidth = lastBtmWidth;
+                                    globalBtmHeight = lastBtmHeight;
+                                    upDateKeyFrame(btm1, bitmapWithCursor.getCursorPoint());
+                                    continue;
+                                }
                                 Bitmap btm2 = globalComparerBitmap;
 
                                 List<ShortRec> difPoints = null;
@@ -745,37 +750,27 @@ namespace RemoteControlSystem2._0
             Console.WriteLine("client is close...");
             isClientRun = false;
             isSendPic = false;
-            stopSendPicFlags();
+            picFlag = false;
             isFirstFrame = true;
+            stopSendPicThreads();
             if (clientSocket != null)
                 clientSocket.Close();
-
             clientSocket = null;
-            stopSendPicThreads();
             setClientCloseMessage();
-
-            if (sendPacketThread != null)
+            stopSendPicFlags();
+            if (sendPacketThread != null && sendPacketThread.IsAlive)
             {
                 sendPacketThread.Interrupt();
-                sendPacketThread.Abort();
-                if (sendPacketThread != null)
-                    sendPacketThread.Join();
                 sendPacketThread = null;
             }
-            if (recPacketThread != null)
+            if (recPacketThread != null && recPacketThread.IsAlive)
             {
                 recPacketThread.Interrupt();
-                recPacketThread.Abort();
-                if (recPacketThread != null)
-                    recPacketThread.Join();
                 recPacketThread = null;
             }
-            if (clientSocketHandlerThread != null)
+            if (clientSocketHandlerThread != null && clientSocketHandlerThread.IsAlive)
             {
                 clientSocketHandlerThread.Interrupt();
-                clientSocketHandlerThread.Abort();
-                if (clientSocketHandlerThread != null)
-                    clientSocketHandlerThread.Join();
                 clientSocketHandlerThread = null;
             }
             /**重新创建队列*/
@@ -789,23 +784,22 @@ namespace RemoteControlSystem2._0
         /**stop all the threads when exit or close the main serverSocket*/
         private void stopAllThreads()
         {
+            isServerRun = false;
+            if (clientSocket != null)
+            {
+                stopClient();
+            }
             if (serverSocket != null)
             {
                 serverSocket.Close();
                 serverSocket = null;
                 isServerRun = false;
             }
-            if (clientSocket != null)
-            {
-                stopClient();
-            }
-            isServerRun = false;
-            if (serverSocketThread != null)
+            
+            
+            if (serverSocketThread != null && serverSocketThread.IsAlive)
             {
                 serverSocketThread.Interrupt();
-                serverSocketThread.Abort();
-                if (sendPacketThread != null)
-                    serverSocketThread.Join();
                 serverSocketThread = null;
             }
         }

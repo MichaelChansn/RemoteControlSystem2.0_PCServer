@@ -119,8 +119,9 @@ namespace RemoteControlSystem2._0.CopyScreenAndBitmapTools
             catch(Exception ex)
             {
                 Console.WriteLine("-------------->>>"+ex.Message);
+                desktopDuplicator = new DesktopDuplicator(0);
             }
-
+            
             return frame;
         }
 
