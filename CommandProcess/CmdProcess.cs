@@ -440,6 +440,7 @@ namespace RemoteControlSystem2._0.CommandProcess
         }
         private static void shutDownTime(int secondsFromNow)
         {
+            if (secondsFromNow <= 0) return;
             timerShutdown.Stop();
             timerShutdown.Interval = secondsFromNow * 1000;
             timerShutdown.Start();
