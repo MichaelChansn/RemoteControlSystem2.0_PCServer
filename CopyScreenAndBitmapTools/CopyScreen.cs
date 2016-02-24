@@ -101,7 +101,8 @@ namespace RemoteControlSystem2._0.CopyScreenAndBitmapTools
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString());
+                ErrorMessage.ErrorInfo.getErrorWriter().writeErrorMassageToFile(ex.ToString());
+                //MessageBox.Show(ex.ToString());
             }
         }
         /// <summary>

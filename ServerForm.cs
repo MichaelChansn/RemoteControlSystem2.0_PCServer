@@ -24,6 +24,7 @@ using ICSharpCode.SharpZipLib.Zip;
 using DesktopDuplication;
 using RemoteControlSystem2._0.OSInfos;
 using RemoteControlSystem2._0.CommandProcess;
+using System.Drawing.Drawing2D;
 
 namespace RemoteControlSystem2._0
 {
@@ -105,45 +106,45 @@ namespace RemoteControlSystem2._0
             }
             catch (SocketException se)
             {
-                MessageBox.Show("UDP Scan Thread Is Crashed\r\n"+se.Message, "UDP ERROR");
+                MessageBox.Show("UDP Scan Thread Is Crashed\r\n" + se.Message, "UDP ERROR");
                 return;
             }
-                IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                while (isServerRun)
+            IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
+            while (isServerRun)
+            {
+                try
                 {
-                    try
+                    Byte[] receiveBytes = udpClient.Receive(ref RemoteIpEndPoint);//这个方法是阻塞的
+                    string returnData = Encoding.UTF8.GetString(receiveBytes);
+                    Console.WriteLine(returnData);
+                    string[] rec = returnData.Split(ENUMS.NETSEPARATOR.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                    if (rec[0] == ENUMS.UDPSCANMESSAGE && rec.Length == 2)
                     {
-                        Byte[] receiveBytes = udpClient.Receive(ref RemoteIpEndPoint);//这个方法是阻塞的
-                        string returnData = Encoding.UTF8.GetString(receiveBytes);
-                        Console.WriteLine(returnData);
-                        string[] rec = returnData.Split(ENUMS.NETSEPARATOR.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                        if (rec[0] == ENUMS.UDPSCANMESSAGE && rec.Length == 2)
-                        {
-                            this.setMessageHost(rec[1] + " Scanning...");
-                            Console.WriteLine(rec[1] + ":" + RemoteIpEndPoint.ToString());
-                            byte[] buf = Encoding.UTF8.GetBytes(ENUMS.UDPSCANRETURN + ENUMS.NETSEPARATOR + System.Environment.UserName + ENUMS.NETSEPARATOR + TCP_PORT);
-                            udpClient.Send(buf, buf.Length, RemoteIpEndPoint);
+                        this.setMessageHost(rec[1] + " Scanning...");
+                        Console.WriteLine(rec[1] + ":" + RemoteIpEndPoint.ToString());
+                        byte[] buf = Encoding.UTF8.GetBytes(ENUMS.UDPSCANRETURN + ENUMS.NETSEPARATOR + System.Environment.UserName + ENUMS.NETSEPARATOR + TCP_PORT);
+                        udpClient.Send(buf, buf.Length, RemoteIpEndPoint);
 
-                        }
                     }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                        if (udpClient != null)
-                        {
-                            udpClient.Close();
-                            udpClient = null;
-                        }
-                        return;
-                    }
-
-
                 }
-                if (udpClient != null)
+                catch (Exception ex)
                 {
-                    udpClient.Close();
-                    udpClient = null;
+                    Console.WriteLine(ex.Message);
+                    if (udpClient != null)
+                    {
+                        udpClient.Close();
+                        udpClient = null;
+                    }
+                    return;
                 }
+
+
+            }
+            if (udpClient != null)
+            {
+                udpClient.Close();
+                udpClient = null;
+            }
 
         }
         private void buttonServer_Click(object sender, EventArgs e)
@@ -176,7 +177,7 @@ namespace RemoteControlSystem2._0
                 catch (SocketException se)
                 {
                     isServerRun = false;
-                    MessageBox.Show("TCP Server Is Crashed\r\n"+se.Message, "ERROR!", MessageBoxButtons.OK);
+                    MessageBox.Show("TCP Server Is Crashed\r\n" + se.Message, "ERROR!", MessageBoxButtons.OK);
                     ErrorInfo.getErrorWriter().writeErrorMassageToFile(se.Message);
                 }
             }
@@ -455,6 +456,9 @@ namespace RemoteControlSystem2._0
          * 最小50，最大950;
          */
         private static int dynamicTime = 90;
+        private static int perWin8BelowFPSTime = 50;
+        private static int perWin8AboveFPSTime = 25;
+        private static bool isMove = false;
         private void copyScreenToBlockingQueue()
         {
             Stopwatch sw = new Stopwatch();
@@ -527,7 +531,8 @@ namespace RemoteControlSystem2._0
                         if (sw.ElapsedMilliseconds > 1000)
                         {
                             sw.Restart();
-                            textBoxFPS.Text = "" + fps;
+                            textBoxFPS.Text = "" +fps;
+                            isMove = isMoving(fps);
                             fps = 0;
                         }
                     }
@@ -540,16 +545,34 @@ namespace RemoteControlSystem2._0
                 }
             }
         }
-
+        private static int bottomLine = 0;
+        private static int maxValue = 5;
+        private static int minValue = (int)(maxValue * 0.8);
+        private static bool isMoving(int FPS)
+        {
+            if (FPS >= 10)
+            {
+                if (bottomLine < maxValue)
+                    bottomLine += 1;
+            }
+            else
+            {
+                if (bottomLine > 0)
+                    bottomLine -= 1;
+            }
+            Console.WriteLine(bottomLine);
+            return bottomLine > minValue ? true : false;
+        }
         /**差异比较函数*/
         /**
          * 控制扫描块的大小，块越大，扫描速度越快，但是发送的数据量就越大;
          * 块越小，扫描速度就越慢，但是发送的数据量就小；
          * 局域网一般100*100
          * 广域网一般40*40 或 20*20
-         * 是否需要协商块的大小？？？？进一步实验决定。默认的事30*30
+         * 是否需要协商块的大小？？？？进一步实验决定。默认的事16*8
+         * 为了优化宽带占用，越小越好，因为后边会有矩形合并处理，不影响传输效率
          **/
-        private static Size bitCmpSize = new Size(32, 32);// new Size(30, 30);
+        private static Size bitCmpSize = new Size(16, 8);
         private static bool isFirstFrame = true;//用于第一比较帧的保存
         private static int keyFrameAdjusttimes = 0;
         private static double VPT07 = 0.7;
@@ -590,7 +613,7 @@ namespace RemoteControlSystem2._0
                             //    sendKeyFrame();
                             //}
                             Bitmap btm1 = bitmapWithCursor.getScreenBitmap();
-                           
+
                             if (isFirstFrame)
                             {
                                 globalBtmWidth = btm1.Width;
@@ -619,7 +642,10 @@ namespace RemoteControlSystem2._0
                                     //sw.Start();
                                     difPoints = BitmapCmp32Bit.Compare(bitmapWithCursor.dirtyRecs, btm2, btm1, bitCmpSize);
                                     //sw.Stop();
-                                    //Console.WriteLine(sw.ElapsedMilliseconds+"ms");
+                                  /* foreach (ShortRec rec in difPoints)
+                                    {
+                                        Console.WriteLine("dif---->" + rec.xPoint+":"+rec.yPoint+":"+rec.width+":"+rec.height);
+                                    }*/
                                 }
                                 else
                                 {
@@ -637,6 +663,7 @@ namespace RemoteControlSystem2._0
                                     }
                                     else
                                     {
+                                        difPoints=unionShortRecs(difPoints);
                                         //Stopwatch sw = new Stopwatch();
                                         //sw.Start();
                                         sendPic = GetDifBlocks.getBlocksIn1BitmapClone(difPoints, btm1, bitCmpSize);
@@ -672,6 +699,37 @@ namespace RemoteControlSystem2._0
             }
         }
 
+        /// <summary>
+        /// union the dirty rects
+        /// </summary>
+        /// <param name="difPoints"></param>
+        /// <returns></returns>
+        private List<ShortRec> unionShortRecs(List<ShortRec> difPoints)
+        {
+
+            List<ShortRec> unionRects = new List<ShortRec>();
+            if (difPoints.Count > 0)
+            {
+                Region region = new Region(new Rectangle(0, 0, 0, 0));
+                foreach (ShortRec difPoint in difPoints)
+                {
+                    int startX = difPoint.xPoint;
+                    int startY = difPoint.yPoint;
+                    int width = difPoint.width;
+                    int height = difPoint.height;
+                    Rectangle rect = new Rectangle(startX, startY, width, height);
+                    region.Union(rect);
+                }
+                RectangleF[] rectFs = region.GetRegionScans(new Matrix());
+                foreach (RectangleF rF in rectFs)
+                {
+                    ShortRec shortRec = new ShortRec((int)rF.Left, (int)rF.Top, (int)rF.Width, (int)rF.Height);
+                    unionRects.Add(shortRec);
+                }
+
+            }
+            return unionRects;
+        }
 
         /**更新关键帧*/
         private void upDateKeyFrame(Bitmap newKeyFrame, ShortPoint point)
@@ -725,7 +783,7 @@ namespace RemoteControlSystem2._0
                             sendPacket.setBitmapType(differentBitmapWithCursor.getBitmapType());
                             sendPacket.setCursorPoint(differentBitmapWithCursor.getCursorPoint());
                             sendPacket.setDifPointsList(differentBitmapWithCursor.getDifPointsList());
-                            byte[] bmpBytes = JpegZip.jpegAndZip(differentBitmapWithCursor.getDifBitmap());
+                            byte[] bmpBytes = JpegZip.jpegAndZip(differentBitmapWithCursor.getDifBitmap(), isMove);
 
                             sendPacket.setBitByts(bmpBytes);
                             sendPacket.setBitmapBytesLength(bmpBytes.Length);
@@ -795,8 +853,8 @@ namespace RemoteControlSystem2._0
                 serverSocket = null;
                 isServerRun = false;
             }
-            
-            
+
+
             if (serverSocketThread != null && serverSocketThread.IsAlive)
             {
                 serverSocketThread.Interrupt();
