@@ -33,7 +33,7 @@ namespace RemoteControlSystem2._0.BitmapTools
         [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern unsafe int memcmp(byte* b1, byte* b2, int count);
         private static int BOTTOMLINE = 10;//颜色阀值，低于此值认为是相同的像素
-        private static int SCANSTRIDE = 2;//隔行扫描，每隔3行/列，扫描一次
+        private static int SCANSTRIDE = 5;//隔行扫描，每隔5行/列，扫描一次
 
         /// <summary>
         /// 比较两个图像,固定块各行扫描
@@ -69,7 +69,7 @@ namespace RemoteControlSystem2._0.BitmapTools
                         int endX = dirRec.Right;
                         int endY = dirRec.Bottom;
                         int w = startX, h = startY;
-                        int start = new Random().Next(0, SCANSTRIDE);
+                        int start = 0;// new Random().Next(0, SCANSTRIDE);
                         while (h <= endY)
                         {
                             byte* p1 = (byte*)bd1.Scan0 + h * bd1.Stride;
@@ -77,7 +77,7 @@ namespace RemoteControlSystem2._0.BitmapTools
                              w = startX;
                              while (w <= endX)
                              {
-                                 for (int j = start; j < block.Height; j += SCANSTRIDE)
+                                 for (int j = start; j < block.Height; j += j%SCANSTRIDE+1)
                                  {
                                      int hj = h + j;
                                      if (hj >= endY) break;
@@ -97,6 +97,7 @@ namespace RemoteControlSystem2._0.BitmapTools
  
                         }
                     }
+                    /**2*2随机点阵探测*/
                     /*
                     foreach (Rectangle dirRec in dirtyRecs)
                     {
@@ -107,7 +108,7 @@ namespace RemoteControlSystem2._0.BitmapTools
                         int endY = dirRec.Bottom;
 
                         int w = startX, h = startY;
-                        int start = 0;// new Random().Next(0, SCANSTRIDE);//确定随机监测点，保证随机探测
+                        int start =  new Random().Next(0, 2);//确定随机监测点，保证随机探测
 
                         while (h < endY)
                         {
@@ -117,13 +118,14 @@ namespace RemoteControlSystem2._0.BitmapTools
                             w = startX;
                             while (w < endX)
                             {
+                               
                                 //按块大小进行扫描
-                                for (int j = start; j < block.Height; j += SCANSTRIDE)
+                                for (int j = start; j < block.Height; j += 2)
                                 {
                                     int hj = h + j;
                                     if (hj >= endY) break;
 
-                                    for (int i = start; i < block.Width; i += 1)
+                                    for (int i = start%2+1; i < block.Width; i +=2)
                                     {
                                         int wi = w + i;
                                         if (wi >= endX) break;
@@ -152,10 +154,10 @@ namespace RemoteControlSystem2._0.BitmapTools
                         }
 
 
-                    }*/
+                    }
+                    */
 
-
-
+                   
 
                 }
             }
@@ -193,6 +195,8 @@ namespace RemoteControlSystem2._0.BitmapTools
 
                 unsafe
                 {
+                   
+                    /******************************************************************************************************/
 
                     foreach (Rectangle dirRec in dirtyRecs)
                     {

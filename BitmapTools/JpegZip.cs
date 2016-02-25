@@ -50,5 +50,6 @@ namespace RemoteControlSystem2._0.BitmapTools
             return retByte;
 
         }
+
     }
 }

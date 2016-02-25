@@ -459,6 +459,8 @@ namespace RemoteControlSystem2._0
         private static int perWin8BelowFPSTime = 50;
         private static int perWin8AboveFPSTime = 25;
         private static bool isMove = false;
+        private static int QTY = 100;
+        
         private void copyScreenToBlockingQueue()
         {
             Stopwatch sw = new Stopwatch();
@@ -532,9 +534,10 @@ namespace RemoteControlSystem2._0
                         {
                             sw.Restart();
                             textBoxFPS.Text = "" +fps;
-                            isMove = isMoving(fps);
+                           // isMove = isMoving(fps);
                             fps = 0;
                         }
+                        dynamicTime = timeSpan();
                     }
                     catch (Exception ex)
                     {
@@ -545,11 +548,51 @@ namespace RemoteControlSystem2._0
                 }
             }
         }
-        private static int bottomLine = 0;
-        private static int maxValue = 5;
-        private static int minValue = (int)(maxValue * 0.8);
-        private static bool isMoving(int FPS)
+        private int timeSpan()
         {
+            int seed=Math.Max(Math.Max(screenCopyQueue.getQueueSize(),screenCopyDifQueue.getQueueSize()),sendPacketQueue.getQueueSize());
+            int time=(int)(9.2*seed*seed+80);
+            return time;
+        }
+        private static int bottomLine = 0;
+        private static int maxValue = 10;
+        private static int minValue = (int)(maxValue * 0.8);
+        private static int countTime = 0;
+       
+        private  bool isMoving(int FPS)
+        {
+           /* Console.WriteLine(FPS);
+            bool isMove = false;
+            int qty = 100;
+            if (FPS <= 5)
+            {
+                qty = 100;
+            }
+            else
+            {
+                qty = 550 / FPS - 10;
+            }
+            if (qty == 100)
+            {
+                if (bottomLine > 0)
+                    bottomLine -= 1;
+               
+            }
+            else
+            {
+                if (bottomLine < maxValue)
+                    bottomLine += 1;
+            }
+            countTime++;
+            if (countTime > maxValue)
+            {
+                countTime = maxValue+1;
+                isMove = bottomLine > minValue ? true : false;
+            }
+            Console.WriteLine(bottomLine);
+            Console.WriteLine(isMove);
+            return isMove;*/
+            
             if (FPS >= 10)
             {
                 if (bottomLine < maxValue)
@@ -562,6 +605,15 @@ namespace RemoteControlSystem2._0
             }
             Console.WriteLine(bottomLine);
             return bottomLine > minValue ? true : false;
+            
+        }
+        private int getQty(int FPS)
+        {
+            int qty = 100;
+            if (FPS <= 5) qty = 100;
+            else
+                qty = 550 / FPS - 10;
+            return qty;
         }
         /**差异比较函数*/
         /**
