@@ -534,7 +534,7 @@ namespace RemoteControlSystem2._0
                         {
                             sw.Restart();
                             textBoxFPS.Text = "" +fps;
-                           // isMove = isMoving(fps);
+                            isMove = isMoving(fps);
                             fps = 0;
                         }
                         dynamicTime = timeSpan();
@@ -624,7 +624,7 @@ namespace RemoteControlSystem2._0
          * 是否需要协商块的大小？？？？进一步实验决定。默认的事16*8
          * 为了优化宽带占用，越小越好，因为后边会有矩形合并处理，不影响传输效率
          **/
-        private static Size bitCmpSize = new Size(16, 8);
+        private static Size bitCmpSize = new Size(32, 32);
         private static bool isFirstFrame = true;//用于第一比较帧的保存
         private static int keyFrameAdjusttimes = 0;
         private static double VPT07 = 0.7;
